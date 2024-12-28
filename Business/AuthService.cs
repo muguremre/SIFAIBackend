@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using SIFAIBackend.Entities;
 
 namespace SIFAIBackend.Business
 {
@@ -22,7 +23,7 @@ namespace SIFAIBackend.Business
         }
 
         // Kullanıcıyı doğrula ve JWT token oluştur
-        public async Task<string> AuthenticateAsync(string email, string password)
+        public async Task<(string Token, User User)> AuthenticateAsync(string email, string password)
         {
             var user = await _userDal.GetUserByUsernameAndPasswordAsync(email, password);
             if (user != null)
@@ -37,13 +38,12 @@ namespace SIFAIBackend.Business
                         new Claim(ClaimTypes.Email, user.Email),
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         new Claim(ClaimTypes.Name, user.Name)
-
                     }),
                     Expires = DateTime.UtcNow.AddHours(_jwtExpireHours),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
                 var token = tokenHandler.CreateToken(tokenDescriptor);
-                return tokenHandler.WriteToken(token);
+                return (tokenHandler.WriteToken(token), user);
             }
             else
             {

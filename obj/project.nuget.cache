@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "w45Rs+lNa00/NPe0a9/4odrB46T4zDElPm9P3JJZmcnb5BVxFroRlI425TY1zKBiZp8lsVY4KvtsfsQCNpOKLw==",
+  "dgSpecHash": "3y/Qf9h/pjni47eS4hxptsydY7ClRl/MuUgDm0M0RgaMu/uxaClcLtvJViVD45CVyA4ymxhewFyOBDSPUSNtdQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\muguremre\\source\\repos\\SIFAIBackend\\SIFAIBackend.csproj",
+  "projectFilePath": "C:\\Users\\muguremre\\Desktop\\SIFAIBackend\\SIFAIBackend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\muguremre\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\muguremre\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\6.0.0\\microsoft.aspnetcore.authentication.jwtbearer.6.0.0.nupkg.sha512",

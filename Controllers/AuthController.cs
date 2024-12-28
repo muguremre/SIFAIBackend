@@ -22,21 +22,25 @@ namespace SIFAIBackend.Controllers
         {
             try
             {
-                var token = await _authService.AuthenticateAsync(model.Email, model.Password);
-                if (!string.IsNullOrEmpty(token))
+                var (token, user) = await _authService.AuthenticateAsync(model.Email, model.Password);
+                if (!string.IsNullOrEmpty(token) && user != null)
                 {
-                    // Başarılı giriş
-                    return Ok(new { Token = token, Message = "Başarılı giriş" });
+                    // Başarılı giriş, kullanıcı bilgileri ile yanıt döndür
+                    return Ok(new
+                    {
+                        Token = token,
+                        UserId = user.Id,
+                        Name = user.Name,
+                        Message = "Başarılı giriş"
+                    });
                 }
                 else
                 {
-                    // Kullanıcı doğrulanamadı
                     return BadRequest(new { message = "Geçersiz e-posta veya şifre" });
                 }
             }
             catch (Exception ex)
             {
-                // Hata meydana geldi
                 return BadRequest(new { message = ex.Message });
             }
         }

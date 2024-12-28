@@ -7,8 +7,10 @@ using Microsoft.OpenApi.Models;
 using muguremreCVBackend.Business;
 using SIFAIBackend.Business;
 using SIFAIBackend.DataAccess;
+using System.IO;
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders;
 
 namespace SIFAIBackend
 {
@@ -61,6 +63,7 @@ namespace SIFAIBackend
 
             services.AddScoped<IRegisterRepository, RegisterRepository>();
             services.AddScoped<IRegisterManager, RegisterManager>();
+            services.AddScoped<ITumorService, TumorService>();
 
             // Add Authentication with JWT
             services.AddAuthentication(options =>
@@ -121,6 +124,19 @@ namespace SIFAIBackend
 
             // HTTPS Redirection
             app.UseHttpsRedirection();
+
+            // Static files for serving uploaded images
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(uploadsFolder),
+                RequestPath = "/uploads" // URL'de "/uploads" ile eriþim saðlanacak
+            });
 
             // Authentication and Authorization
             app.UseAuthentication();
