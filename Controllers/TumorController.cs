@@ -14,7 +14,7 @@ namespace SIFAIBackend.Controllers
     [Route("api/[controller]")]
     public class TumorController : ControllerBase
     {
-        private readonly string flaskApiUrl = "http://127.0.0.1:5000/predict"; // Flask API URL
+        private readonly string flaskApiUrl = "http://127.0.0.1:5000/predict";
         private readonly ITumorService _tumorService;
 
         public TumorController(ITumorService tumorService)
@@ -22,7 +22,6 @@ namespace SIFAIBackend.Controllers
             _tumorService = tumorService;
         }
 
-        // Yeni bir tespit kaydı ekle ve Flask API'den sonucu al
         [HttpPost("detect")]
         public async Task<IActionResult> DetectTumor([FromForm] TumorDetectionRequest request)
         {
@@ -31,7 +30,6 @@ namespace SIFAIBackend.Controllers
                 return BadRequest("Geçersiz talep. Lütfen tüm alanları doldurun.");
             }
 
-            // Görüntüyü "uploads" klasörüne kaydet
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
             if (!Directory.Exists(uploadsFolder))
             {
@@ -47,75 +45,99 @@ namespace SIFAIBackend.Controllers
             }
 
             using (var httpClient = new HttpClient())
+            using (var formData = new MultipartFormDataContent())
+            using (var imageStream = System.IO.File.OpenRead(filePath))
             {
-                using (var formData = new MultipartFormDataContent())
+                var fileContent = new StreamContent(imageStream);
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
+                formData.Add(fileContent, "image", request.Image.FileName);
+                var anamnezObj = new
                 {
-                    // Flask API'ye göndermek için kaydedilen dosyayı okuyun
-                    using (var stream = System.IO.File.OpenRead(filePath))
-                    {
-                        var fileContent = new StreamContent(stream);
-                        fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
-                        formData.Add(fileContent, "image", request.Image.FileName);
+                    epilepsy = request.Epilepsy,
+                    worsening_headache = request.WorseningHeadache,
+                    morning_headache = request.MorningHeadache,
+                    vision_loss = request.VisionLoss,
+                    hormonal_issues = request.HormonalIssues,
+                    family_history = request.FamilyHistory,
+                    age = request.Age,
+                    gender = request.Gender
+                };
 
-                        // Flask API'ye isteği gönder
-                        var response = await httpClient.PostAsync(flaskApiUrl, formData);
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var tumorTypeJson = await response.Content.ReadAsStringAsync();
-                            var tumorTypeResponse = JsonSerializer.Deserialize<TumorTypeResponse>(tumorTypeJson);
-                            var tumorType = tumorTypeResponse?.TumorType;
+                string anamnezJson = JsonSerializer.Serialize(anamnezObj);
+                formData.Add(new StringContent(anamnezJson), "anamnez_data");
 
-                            if (string.IsNullOrWhiteSpace(tumorType))
-                            {
-                                return BadRequest("Flask API geçersiz bir yanıt döndürdü.");
-                            }
+                var response = await httpClient.PostAsync(flaskApiUrl, formData);
+                if (response.IsSuccessStatusCode)
+                {
+                    var tumorTypeJson = await response.Content.ReadAsStringAsync();
+                    var tumorTypeResponse = JsonSerializer.Deserialize<TumorTypeResponse>(tumorTypeJson);
+                    var tumorType = tumorTypeResponse?.TumorType;
 
-                            // Veritabanına kaydet
-                            await _tumorService.SaveDetectionAsync(request.UserId, uniqueFileName, tumorType);
+                    if (string.IsNullOrWhiteSpace(tumorType))
+                        return BadRequest("Flask API geçersiz bir yanıt döndürdü.");
 
-                            return Ok(new { TumorType = tumorType, Message = "Tespit kaydedildi." });
-                        }
-                        else
-                        {
-                            return StatusCode((int)response.StatusCode, "Flask API'ye bağlanılamadı.");
-                        }
-                    }
+                    await _tumorService.SaveDetectionAsync(request.UserId, uniqueFileName, tumorType);
+
+                    return Ok(tumorTypeResponse);
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, "Flask API'ye bağlanılamadı.");
                 }
             }
         }
 
-
-        // Kullanıcının geçmiş tespitlerini getir
         [HttpGet("history/{userId}")]
         public async Task<IActionResult> GetHistory(int userId)
         {
             if (userId <= 0)
-            {
                 return BadRequest("Geçersiz kullanıcı ID'si.");
-            }
 
             var history = await _tumorService.GetHistoryByUserIdAsync(userId);
 
             if (history == null || history.Count == 0)
-            {
-                return NotFound("Bu kullanıcı için herhangi bir geçmiş tespiti bulunamadı.");
-            }
+                return NotFound("Bu kullanıcı için geçmiş tespiti bulunamadı.");
 
             return Ok(history);
         }
     }
 
-    // TumorDetectionRequest modeli
     public class TumorDetectionRequest
     {
-        public int UserId { get; set; } // Kullanıcı ID'si
-        public IFormFile Image { get; set; } // Yüklenen dosya
+        public int UserId { get; set; }
+        public IFormFile Image { get; set; }
+
+        public bool Epilepsy { get; set; }
+        public bool WorseningHeadache { get; set; }
+        public bool MorningHeadache { get; set; }
+        public bool VisionLoss { get; set; }
+        public bool HormonalIssues { get; set; }
+        public bool FamilyHistory { get; set; }
+        public int Age { get; set; }
+        public string Gender { get; set; }
     }
 
-    // Flask API'den dönen JSON'u temsil eden model
     public class TumorTypeResponse
     {
         [JsonPropertyName("tumor_type")]
-        public string TumorType { get; set; } // Örnek: "meningioma", "glioma", vb.
+        public string TumorType { get; set; }
+
+        [JsonPropertyName("güven")]
+        public string Confidence { get; set; }
+
+        [JsonPropertyName("mr_tahmini")]
+        public string MrTahmini { get; set; }
+
+        [JsonPropertyName("mr_güven")]
+        public string MrGüven { get; set; }
+
+        [JsonPropertyName("anamnez_tahmini")]
+        public string AnamnezTahmini { get; set; }
+
+        [JsonPropertyName("anamnez_güven")]
+        public string AnamnezGüven { get; set; }
+
+        [JsonPropertyName("yorum")]
+        public string Yorum { get; set; }
     }
 }
