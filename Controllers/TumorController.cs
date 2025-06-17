@@ -139,5 +139,7 @@ namespace SIFAIBackend.Controllers
 
         [JsonPropertyName("yorum")]
         public string Yorum { get; set; }
+        [JsonPropertyName("segmentation_image_base64")]
+        public string SegmentationImageBase64 { get; set; }
     }
 }

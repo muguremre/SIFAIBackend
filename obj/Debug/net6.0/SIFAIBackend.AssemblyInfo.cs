@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SIFAIBackend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e183e9ad5fcc2af40c402e0430e740281dc1cb77")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0b7176f5639b30d5b36afb1ffe167452674723f")]
 [assembly: System.Reflection.AssemblyProductAttribute("SIFAIBackend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SIFAIBackend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
