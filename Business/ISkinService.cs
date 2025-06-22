@@ -8,7 +8,8 @@
         double ensembleSkor,
         string tahmin,
         string risk,
-        string yorum
+        string yorum,
+        string prediction
     );
 
     Task<List<SkinDetectionHistory>> GetHistoryByUserIdAsync(int userId);

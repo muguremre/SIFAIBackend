@@ -57,7 +57,8 @@ public class SkinCancerController : ControllerBase
         await _skinService.SaveDetectionAsync(
             request.UserId, uniqueName,
             gorsel, anamnez, ensemble,
-            result.Tahmin, result.Risk, result.Yorum
+            result.Tahmin, result.Risk, result.Yorum,
+            result.Tahmin
         );
 
         return Ok(result);

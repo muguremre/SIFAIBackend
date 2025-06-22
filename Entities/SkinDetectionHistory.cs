@@ -2,14 +2,14 @@
 {
     public int Id { get; set; }
     public int UserId { get; set; }
-    public DateTime DetectionDate { get; set; }
-    public string ImageUrl { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
 
-    public double GorselSkor { get; set; }
-    public double AnamnezSkor { get; set; }
-    public double EnsembleSkor { get; set; }
-
-    public string Tahmin { get; set; }
-    public string Risk { get; set; }
-    public string Yorum { get; set; }
+    public string? Prediction { get; set; }
+    public string? Risk { get; set; }
+    public DateTime? DetectionDate { get; set; }
+    public double? GorselSkor { get; set; }
+    public double? AnamnezSkor { get; set; }
+    public double? EnsembleSkor { get; set; }
+    public string? Tahmin { get; set; }
+    public string? Yorum { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using SIFAIBackend.DataAccess;
+﻿using Microsoft.EntityFrameworkCore;
+using SIFAIBackend.DataAccess;
 
 public class SkinService : ISkinService
 {
@@ -17,7 +18,9 @@ public class SkinService : ISkinService
         double ensembleSkor,
         string tahmin,
         string risk,
-        string yorum)
+        string yorum,
+        string prediction
+        )
     {
         var rec = new SkinDetectionHistory
         {
@@ -29,7 +32,8 @@ public class SkinService : ISkinService
             EnsembleSkor = ensembleSkor,
             Tahmin = tahmin,
             Risk = risk,
-            Yorum = yorum
+            Yorum = yorum,
+            Prediction = prediction
         };
 
         _context.SkinDetectionHistories.Add(rec);
@@ -39,11 +43,24 @@ public class SkinService : ISkinService
 
     public async Task<List<SkinDetectionHistory>> GetHistoryByUserIdAsync(int userId)
     {
-        return await Task.FromResult(
-            _context.SkinDetectionHistories
-                .Where(x => x.UserId == userId)
-                .OrderByDescending(x => x.DetectionDate)
-                .ToList()
-        );
+        return await _context.SkinDetectionHistories
+            .Where(x => x.UserId == userId)
+            .Select(x => new SkinDetectionHistory
+            {
+                Id = x.Id,
+                UserId = x.UserId,
+                ImageUrl = x.ImageUrl,
+                Prediction = x.Prediction ?? "",
+                Risk = x.Risk ?? "",
+                DetectionDate = x.DetectionDate ?? DateTime.MinValue,
+                GorselSkor = x.GorselSkor ?? 0,
+                AnamnezSkor = x.AnamnezSkor ?? 0,
+                EnsembleSkor = x.EnsembleSkor ?? 0,
+                Tahmin = x.Tahmin ?? "",
+                Yorum = x.Yorum ?? ""
+            })
+            .OrderByDescending(x => x.DetectionDate)
+            .ToListAsync();
     }
+
 }
