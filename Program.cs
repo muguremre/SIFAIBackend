@@ -64,6 +64,7 @@ namespace SIFAIBackend
             services.AddScoped<IRegisterRepository, RegisterRepository>();
             services.AddScoped<IRegisterManager, RegisterManager>();
             services.AddScoped<ITumorService, TumorService>();
+            services.AddScoped<ISkinService, SkinService>();
 
             // Add Authentication with JWT
             services.AddAuthentication(options =>

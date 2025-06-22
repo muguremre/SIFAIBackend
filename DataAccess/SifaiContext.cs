@@ -14,6 +14,7 @@ namespace SIFAIBackend.DataAccess
 
         // TumorDetectionHistory tablosu
         public DbSet<TumorDetectionHistory> TumorDetectionHistories { get; set; }
+        public DbSet<SkinDetectionHistory> SkinDetectionHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,11 +48,28 @@ namespace SIFAIBackend.DataAccess
                     .HasMaxLength(100);
                 entity.Property(t => t.DetectionDate)
                     .IsRequired();
-                entity.HasOne<User>() // User ile ilişki tanımı
+                entity.HasOne<User>() 
                     .WithMany()
                     .HasForeignKey(t => t.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+            modelBuilder.Entity<SkinDetectionHistory>(entity =>
+            {
+                entity.ToTable("SkinDetectionHistory");
+                entity.HasKey(t => t.Id);
+                entity.Property(t => t.ImageUrl)
+                    .IsRequired()
+                    .HasMaxLength(255);
+                entity.Property(t => t.Tahmin)
+                    .HasMaxLength(100);
+                entity.Property(t => t.DetectionDate)
+                    .IsRequired();
+                entity.HasOne<User>() 
+                    .WithMany()
+                    .HasForeignKey(t => t.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
         }
     }
 }

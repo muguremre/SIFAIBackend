@@ -14,7 +14,7 @@ namespace SIFAIBackend.Controllers
     [Route("api/[controller]")]
     public class TumorController : ControllerBase
     {
-        private readonly string flaskApiUrl = "http://127.0.0.1:5000/predict";
+        private readonly string flaskApiUrl = "http://127.0.0.1:5000/predict/brain";
         private readonly ITumorService _tumorService;
 
         public TumorController(ITumorService tumorService)
